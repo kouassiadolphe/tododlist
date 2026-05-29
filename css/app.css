@@ -1,65 +1,38 @@
-/* Styles personnalisés */
-
-.tache-faite {
-  text-decoration: line-through;
-  color: #8e8e93;
-}
-
-.text-align-center {
-  text-align: center;
-}
-
-.filtre-btn.button-active {
-  background-color: #2de80c;
-  color: #fff;
-}
-
-.compteur {
-  font-size: 16px;
-  font-weight: bold;
-  padding: 8px 16px;
-  background-color: rgba(45, 232, 12, 0.15);
-  border-radius: 20px;
-  display: inline-block;
-}
-
-.button-large {
-  height: 44px;
-  font-size: 17px;
-}
-
 :root {
-  --f7-theme-color: #2de80c;
-  --f7-theme-color-rgb: 45, 232, 12;
+    --f7-theme-color: #2de80c;
+    --f7-theme-color-rgb: 45, 232, 12;
+}
+
+.navbar-bg {
+    background-color: #2de80c !important;
 }
 
 .navbar .title {
-  font-weight: bold;
-  font-size: 20px;
+    color: #ffffff !important;
+    font-weight: bold;
 }
 
-.tabbar {
-  background-color: white;
+.tache-faite {
+    text-decoration: line-through !important;
+    color: #a1a1a1 !important;
 }
 
-.tab-link-active {
-  color: #2de80c;
+.btn-suppr {
+    color: #ff3b30 !important;
+    cursor: pointer;
 }
 
-.item-content {
-  transition: background-color 0.2s ease;
-  cursor: pointer;
+.button-fill {
+    background-color: #2de80c !important;
+    color: white !important;
 }
 
-.item-content:active {
-  background-color: rgba(0, 0, 0, 0.05);
+.button-active {
+    background-color: #2de80c !important;
+    color: white !important;
 }
 
-.item-input-wrap input {
-  font-size: 16px;
-  padding: 10px;
-}
-
-.block-strong {
-  text-align: center;
+.segmented .button-active {
+    background-color: #2de80c !important;
+    color: white !important;
 }

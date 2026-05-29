@@ -1,118 +1,48 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ma ToDo App</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2de80c" />
+    <title>Ma ToDo</title>
+
+    <link rel="stylesheet" href="lib/framework7-bundle.min.css" />
+    <link rel="stylesheet" href="lib/framework7-icons/css/framework7-icons.css" />
+    <link rel="stylesheet" href="css/app.css" />
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .app { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { background: #2de80c; color: white; padding: 20px; text-align: center; }
-        .add-section { padding: 20px; display: flex; gap: 10px; border-bottom: 1px solid #ddd; }
-        .add-section input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        .add-section button { background: #2de80c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .filters { padding: 15px 20px; display: flex; gap: 10px; border-bottom: 1px solid #ddd; }
-        .filters button { flex: 1; padding: 8px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer; }
-        .filters button.active { background: #2de80c; color: white; }
-        .counter { padding: 15px 20px; text-align: center; background: #e8f5e9; font-weight: bold; }
-        .task-list { list-style: none; }
-        .task-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #eee; gap: 15px; }
-        .task-checkbox { width: 20px; height: 20px; cursor: pointer; }
-        .task-text { flex: 1; }
-        .task-text.done { text-decoration: line-through; color: #999; }
-        .delete-btn { background: #ff4444; color: white; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; }
+        .navbar-bg {
+            background-color: #2de80c !important;
+        }
+        .navbar .title {
+            color: #ffffff !important;
+        }
+        .tache-faite {
+            text-decoration: line-through !important;
+            color: #a1a1a1 !important;
+        }
+        .btn-suppr {
+            color: #ff3b30 !important;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .button-fill {
+            background-color: #2de80c !important;
+            color: white !important;
+        }
+        .button-active {
+            background-color: #2de80c !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body>
-    <div class="app">
-        <div class="header"><h1>Ma ToDo</h1></div>
-        <div class="add-section">
-            <input type="text" id="taskInput" placeholder="Nouvelle tâche...">
-            <button id="addBtn">Ajouter</button>
-        </div>
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">Toutes</button>
-            <button class="filter-btn" data-filter="active">À faire</button>
-            <button class="filter-btn" data-filter="completed">Faites</button>
-        </div>
-        <div class="counter" id="counter">0 tâche(s) restante(s)</div>
-        <ul class="task-list" id="taskList"></ul>
+    <div id="app">
+        <div class="view view-main view-init safe-areas"></div>
     </div>
-    <script>
-        let tasks = [];
-        let currentFilter = 'all';
-        
-        function save() { localStorage.setItem('todo_tasks', JSON.stringify(tasks)); }
-        
-        function load() {
-            const saved = localStorage.getItem('todo_tasks');
-            if (saved) { tasks = JSON.parse(saved); }
-            else {
-                tasks = [
-                    { id: 1, text: "Module F7 - Introduction", done: false },
-                    { id: 2, text: "Faire la Session 1", done: false },
-                    { id: 3, text: "Faire la Session 2", done: true },
-                    { id: 4, text: "Faire la Session 3", done: false }
-                ];
-                save();
-            }
-        }
-        
-        function render() {
-            let filtered = tasks;
-            if (currentFilter === 'active') filtered = tasks.filter(t => !t.done);
-            if (currentFilter === 'completed') filtered = tasks.filter(t => t.done);
-            
-            const list = document.getElementById('taskList');
-            if (filtered.length === 0) { list.innerHTML = '<li style="padding:40px;text-align:center">Aucune tâche</li>'; }
-            else {
-                list.innerHTML = filtered.map(t => `
-                    <li class="task-item" data-id="${t.id}">
-                        <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''}>
-                        <span class="task-text ${t.done ? 'done' : ''}">${t.text}</span>
-                        <button class="delete-btn">🗑️</button>
-                    </li>
-                `).join('');
-            }
-            const remaining = tasks.filter(t => !t.done).length;
-            document.getElementById('counter').innerHTML = `${remaining} tâche(s) restante(s)`;
-        }
-        
-        function addTask() {
-            const input = document.getElementById('taskInput');
-            const text = input.value.trim();
-            if (!text) { alert('Veuillez saisir une tâche'); return; }
-            const maxId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) : 0;
-            tasks.push({ id: maxId + 1, text: text, done: false });
-            save();
-            render();
-            input.value = '';
-        }
-        
-        function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); save(); render(); }
-        function toggleTask(id) { const t = tasks.find(t => t.id === id); if (t) { t.done = !t.done; save(); render(); } }
-        
-        document.getElementById('addBtn').onclick = addTask;
-        document.getElementById('taskInput').onkeypress = e => { if (e.key === 'Enter') addTask(); };
-        document.getElementById('taskList').onclick = e => {
-            const li = e.target.closest('.task-item');
-            if (!li) return;
-            const id = parseInt(li.dataset.id);
-            if (e.target.classList.contains('delete-btn')) deleteTask(id);
-            else if (e.target.classList.contains('task-checkbox')) toggleTask(id);
-        };
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentFilter = btn.dataset.filter;
-                render();
-            };
-        });
-        
-        load();
-        render();
-    </script>
+
+    <script src="lib/framework7-bundle.min.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
