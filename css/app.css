@@ -1,21 +1,50 @@
-/* ============================================================
-   Ma ToDo — styles de l'application
-   ============================================================ */
+/* Style personnalisé */
 
-/* Couleur principale du thème (orange) */
-:root {
-    --f7-theme-color: #2de80c;
-    --f7-theme-color-rgb: 232, 89, 12;
-    --f7-theme-color-shade: #cf5009;
-    --f7-theme-color-tint: #f06a1e;
-}
-
-.page-content {
-    padding-bottom: 16px;
-}
-
-/* SÉANCE 3 : ajouter ici le style de la tâche cochée (texte barré) */
+/* Tâche barrée quand terminée */
 .tache-faite {
-    text-decoration: line-through;
-    color: #8e8e93;
+  text-decoration: line-through;
+  color: #8e8e93;
+}
+
+/* Centre le texte */
+.text-align-center {
+  text-align: center;
+}
+
+/* Bouton actif pour les filtres */
+.filtre-btn.button-active {
+  background-color: #2de80c;
+  color: #fff;
+}
+
+/* Style du compteur */
+.compteur {
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px;
+  background-color: rgba(45, 232, 12, 0.1);
+  border-radius: 25px;
+  display: inline-block;
+}
+
+/* Bouton large */
+.button-large {
+  height: 44px;
+  font-size: 17px;
+}
+
+/* Couleur du thème */
+:root {
+  --f7-theme-color: #2de80c;
+  --f7-theme-color-rgb: 45, 232, 12;
+}
+
+/* Animation au clic */
+.item-content {
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.item-content:active {
+  background-color: rgba(0, 0, 0, 0.05);
 }

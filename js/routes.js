@@ -1,20 +1,15 @@
-// Déclaration des routes de l'application
+// Configuration des routes pour Framework7
 var routes = [
   {
     path: '/',
-    url: './index.html', // Ta page d'accueil principale
+    componentUrl: './accueil.html',
   },
   {
-    path: '/tache/',
-    url: './tache.html', // Ta page de détail d'une tâche (Séance 2/3)
+    path: '/taches/',
+    componentUrl: './taches.html',
   },
   {
-    path: '/accueil/',
-    url: './accueil.html', // Ta page d'accueil alternative si nécessaire
-  },
-  // Tout autre chemin non trouvé revient à l'accueil
-  {
-    path: '(.*)',
-    url: './index.html',
-  },
+    path: '/taches',
+    componentUrl: './taches.html',
+  }
 ];
