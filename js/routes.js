@@ -1,3 +1,4 @@
+// Configuration des routes pour Framework7
 var routes = [
   {
     path: '/',

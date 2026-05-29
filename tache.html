@@ -28,88 +28,147 @@
             <li class="item-content item-input">
               <div class="item-inner">
                 <div class="item-input-wrap">
-                  <input type="text" id="champTache" placeholder="Nouvelle tâche...">
+                  <input type="text" id="nouvelleTache" placeholder="Nouvelle tâche...">
                 </div>
               </div>
             </li>
           </ul>
         </div>
         <a href="#" class="button button-fill button-large" id="btnAjouter">
-          ➕ Ajouter
+          Ajouter
         </a>
       </div>
       
-      <!-- Filtres (Session 3) -->
+      <!-- Filtres -->
       <div class="block">
         <div class="row">
           <div class="col-33">
-            <a href="#" class="button button-fill filtre-btn button-active" data-filtre="toutes">
-              📋 Toutes
-            </a>
+            <a href="#" class="button button-fill filtre-btn button-active" data-filtre="toutes">Toutes</a>
           </div>
           <div class="col-33">
-            <a href="#" class="button filtre-btn" data-filtre="afaire">
-              ⭕ À faire
-            </a>
+            <a href="#" class="button filtre-btn" data-filtre="afaire">À faire</a>
           </div>
           <div class="col-33">
-            <a href="#" class="button filtre-btn" data-filtre="faites">
-              ✅ Faites
-            </a>
+            <a href="#" class="button filtre-btn" data-filtre="faites">Faites</a>
           </div>
         </div>
       </div>
       
-      <!-- Compteur (Session 3) -->
+      <!-- Compteur -->
       <div class="block text-align-center">
         <div class="compteur" id="compteur">0 tâche(s) restante(s)</div>
       </div>
       
       <!-- Liste des tâches -->
       <div class="list">
-        <ul class="listeTaches"></ul>
+        <ul id="listeTaches"></ul>
+      </div>
+    </div>
+    
+    <!-- Tabbar -->
+    <div class="toolbar tabbar tabbar-labels">
+      <div class="toolbar-inner">
+        <a href="/" class="tab-link">
+          <i class="f7-icons">house</i>
+          <span class="tabbar-label">Accueil</span>
+        </a>
+        <a href="/taches/" class="tab-link tab-link-active">
+          <i class="f7-icons">list_bullet</i>
+          <span class="tabbar-label">Tâches</span>
+        </a>
       </div>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    (function() {
       var $$ = Dom7;
       var app = window.app;
       
-      if (!$$ || !app) {
+      if (!app) {
         console.error('Framework7 non chargé');
         return;
       }
       
-      // ========== SESSION 3 : TOUTES LES FONCTIONNALITÉS ==========
-      
-      var CLE_STOCKAGE = 'ma-todo-taches';
-      var filtreActif = 'toutes';
+      // ========== DONNÉES ==========
+      var STORAGE_KEY = 'matodo_taches_final';
+      var filtreActuel = 'toutes';
       var taches = [];
       
-      // Charger depuis localStorage
-      function chargerTaches() {
-        var data = localStorage.getItem(CLE_STOCKAGE);
-        if (data) {
-          taches = JSON.parse(data);
-        } else {
+      // ========== STOCKAGE ==========
+      function sauvegarder() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(taches));
+      }
+      
+      function charger() {
+        var saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && saved !== 'undefined') {
+          try {
+            taches = JSON.parse(saved);
+          } catch(e) {
+            taches = [];
+          }
+        }
+        
+        if (!taches || taches.length === 0) {
           taches = [
             { id: 1, texte: "Module F7 - Introduction", fait: false },
-            { id: 2, texte: "Module F7 - Session 1", fait: false },
-            { id: 3, texte: "Module F7 - Session 2", fait: false },
-            { id: 4, texte: "Module F7 - Session 3", fait: false }
+            { id: 2, texte: "Faire la Session 1", fait: false },
+            { id: 3, texte: "Faire la Session 2", fait: true },
+            { id: 4, texte: "Faire la Session 3", fait: false }
           ];
           sauvegarder();
         }
       }
       
-      // Sauvegarder
-      function sauvegarder() {
-        localStorage.setItem(CLE_STOCKAGE, JSON.stringify(taches));
+      // ========== AFFICHAGE ==========
+      function getTachesFiltrees() {
+        if (filtreActuel === 'afaire') {
+          return taches.filter(function(t) { return !t.fait; });
+        } else if (filtreActuel === 'faites') {
+          return taches.filter(function(t) { return t.fait; });
+        }
+        return taches.slice();
       }
       
-      // Échapper HTML
+      function afficher() {
+        var tachesFiltrees = getTachesFiltrees();
+        var ul = document.getElementById('listeTaches');
+        if (!ul) return;
+        
+        ul.innerHTML = '';
+        
+        for (var i = 0; i < tachesFiltrees.length; i++) {
+          var t = tachesFiltrees[i];
+          var classeFait = t.fait ? 'tache-faite' : '';
+          var checked = t.fait ? 'checked' : '';
+          
+          var li = document.createElement('li');
+          li.className = 'item-content';
+          li.setAttribute('data-id', t.id);
+          li.innerHTML = 
+            '<div class="item-media">' +
+              '<label class="checkbox">' +
+                '<input type="checkbox" class="task-checkbox" data-id="' + t.id + '" ' + checked + '>' +
+                '<i class="icon-checkbox"></i>' +
+              '</label>' +
+            '</div>' +
+            '<div class="item-inner">' +
+              '<div class="item-title ' + classeFait + '">' + escapeHtml(t.texte) + '</div>' +
+              '<div class="item-after">' +
+                '<a href="#" class="btn-suppr" data-id="' + t.id + '">' +
+                  '<i class="f7-icons">trash</i>' +
+                '</a>' +
+              '</div>' +
+            '</div>';
+          ul.appendChild(li);
+        }
+        
+        var restantes = taches.filter(function(t) { return !t.fait; }).length;
+        var compteur = document.getElementById('compteur');
+        if (compteur) compteur.innerHTML = restantes + ' tâche(s) restante(s)';
+      }
+      
       function escapeHtml(texte) {
         if (!texte) return '';
         return texte.replace(/[&<>]/g, function(m) {
@@ -120,59 +179,10 @@
         });
       }
       
-      // Générer ligne HTML
-      function ligneTache(t) {
-        var classeFait = t.fait ? 'tache-faite' : '';
-        var checked = t.fait ? 'checked' : '';
-        
-        return '<li class="item-content" data-id="' + t.id + '">' +
-          '<div class="item-media">' +
-            '<label class="checkbox">' +
-              '<input type="checkbox" class="task-checkbox" ' + checked + '>' +
-              '<i class="icon-checkbox"></i>' +
-            '</label>' +
-          '</div>' +
-          '<div class="item-inner">' +
-            '<div class="item-title ' + classeFait + '">' + escapeHtml(t.texte) + '</div>' +
-            '<div class="item-after">' +
-              '<a href="#" class="btn-suppr"><i class="f7-icons">trash</i></a>' +
-            '</div>' +
-          '</div>' +
-        '</li>';
-      }
-      
-      // Filtrer les tâches
-      function tachesVisibles() {
-        if (filtreActif === 'afaire') {
-          return taches.filter(function(t) { return !t.fait; });
-        }
-        if (filtreActif === 'faites') {
-          return taches.filter(function(t) { return t.fait; });
-        }
-        return taches.slice();
-      }
-      
-      // Afficher les tâches
-      function afficher() {
-        var tachesFiltrees = tachesVisibles();
-        var html = '';
-        for (var i = 0; i < tachesFiltrees.length; i++) {
-          html += ligneTache(tachesFiltrees[i]);
-        }
-        $$('.listeTaches').html(html);
-        
-        // Mettre à jour compteur
-        var restantes = 0;
-        for (var i = 0; i < taches.length; i++) {
-          if (!taches[i].fait) restantes++;
-        }
-        $$('#compteur').text(restantes + ' tâche(s) restante(s)');
-      }
-      
-      // Ajouter tâche
+      // ========== ACTIONS ==========
       function ajouterTache(texte) {
-        if (texte.trim() === '') {
-          app.toast.create({ text: '⚠️ Veuillez saisir une tâche', closeTimeout: 1500 }).open();
+        if (!texte || texte.trim() === '') {
+          app.toast.create({ text: 'Veuillez saisir une tâche', closeTimeout: 1500 }).open();
           return;
         }
         
@@ -189,29 +199,25 @@
         
         sauvegarder();
         afficher();
-        
-        app.toast.create({ text: '✅ Tâche ajoutée !', closeTimeout: 1200 }).open();
+        app.toast.create({ text: ' Tâche ajoutée !', closeTimeout: 1200 }).open();
       }
       
-      // Supprimer tâche
       function supprimerTache(id) {
-        var nouvellesTaches = [];
+        var nouvelles = [];
         for (var i = 0; i < taches.length; i++) {
-          if (taches[i].id !== parseInt(id, 10)) {
-            nouvellesTaches.push(taches[i]);
+          if (taches[i].id != id) {
+            nouvelles.push(taches[i]);
           }
         }
-        taches = nouvellesTaches;
+        taches = nouvelles;
         sauvegarder();
         afficher();
-        
-        app.toast.create({ text: '🗑️ Tâche supprimée', closeTimeout: 1200 }).open();
+        app.toast.create({ text: ' Tâche supprimée', closeTimeout: 1200 }).open();
       }
       
-      // Basculer état
-      function basculerTache(id) {
+      function basculerFait(id) {
         for (var i = 0; i < taches.length; i++) {
-          if (taches[i].id === parseInt(id, 10)) {
+          if (taches[i].id == id) {
             taches[i].fait = !taches[i].fait;
             break;
           }
@@ -221,51 +227,45 @@
       }
       
       // ========== INITIALISATION ==========
-      chargerTaches();
+      charger();
       afficher();
       
       // ========== ÉVÉNEMENTS ==========
-      
-      // Ajouter
       $$(document).on('click', '#btnAjouter', function(e) {
         e.preventDefault();
-        var champ = $$('#champTache');
+        var champ = $$('#nouvelleTache');
         ajouterTache(champ.val());
         champ.val('');
       });
       
-      // Supprimer
-      $$(document).on('click', '.btn-suppr', function(e) {
-        e.preventDefault();
-        var id = $$(this).parents('.item-content').attr('data-id');
-        supprimerTache(id);
-      });
-      
-      // Checkbox
-      $$(document).on('change', '.task-checkbox', function() {
-        var id = $$(this).parents('.item-content').attr('data-id');
-        basculerTache(id);
-      });
-      
-      // Filtres
-      $$(document).on('click', '.filtre-btn', function(e) {
-        e.preventDefault();
-        $$('.filtre-btn').removeClass('button-active');
-        $$(this).addClass('button-active');
-        filtreActif = $$(this).attr('data-filtre');
-        afficher();
-      });
-      
-      // Touche Entrée
-      $$('#champTache').on('keypress', function(e) {
+      $$(document).on('keypress', '#nouvelleTache', function(e) {
         if (e.keyCode === 13) {
           e.preventDefault();
           $$('#btnAjouter').trigger('click');
         }
       });
       
-      console.log('✅ Page Tâches chargée');
-    });
+      $$(document).on('click', '.btn-suppr', function(e) {
+        e.preventDefault();
+        var id = parseInt($$(this).attr('data-id'));
+        supprimerTache(id);
+      });
+      
+      $$(document).on('change', '.task-checkbox', function(e) {
+        var id = parseInt($$(this).attr('data-id'));
+        basculerFait(id);
+      });
+      
+      $$(document).on('click', '.filtre-btn', function(e) {
+        e.preventDefault();
+        $$('.filtre-btn').removeClass('button-active');
+        $$(this).addClass('button-active');
+        filtreActuel = $$(this).attr('data-filtre');
+        afficher();
+      });
+      
+      console.log(' Page Tâches chargée');
+    })();
   </script>
 </body>
 </html>

@@ -1,38 +1,65 @@
-/* Style pour les tâches terminées */
+/* Styles personnalisés */
+
 .tache-faite {
   text-decoration: line-through;
   color: #8e8e93;
 }
 
-/* Centre le texte */
 .text-align-center {
   text-align: center;
 }
 
-/* Bouton actif pour les filtres */
 .filtre-btn.button-active {
   background-color: #2de80c;
   color: #fff;
 }
 
-/* Style du compteur */
 .compteur {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  padding: 10px;
-  background-color: rgba(45, 232, 12, 0.1);
-  border-radius: 25px;
+  padding: 8px 16px;
+  background-color: rgba(45, 232, 12, 0.15);
+  border-radius: 20px;
   display: inline-block;
 }
 
-/* Bouton large */
 .button-large {
   height: 44px;
   font-size: 17px;
 }
 
-/* Couleur du thème */
 :root {
   --f7-theme-color: #2de80c;
   --f7-theme-color-rgb: 45, 232, 12;
+}
+
+.navbar .title {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.tabbar {
+  background-color: white;
+}
+
+.tab-link-active {
+  color: #2de80c;
+}
+
+.item-content {
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.item-content:active {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.item-input-wrap input {
+  font-size: 16px;
+  padding: 10px;
+}
+
+.block-strong {
+  text-align: center;
 }
