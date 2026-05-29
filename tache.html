@@ -1,0 +1,53 @@
+<div class="page" data-name="tache">
+    <!-- Barre de navigation du haut -->
+    <div class="navbar">
+        <div class="navbar-bg"></div>
+        <div class="navbar-inner">
+            <div class="left">
+                <a href="#" class="link back">
+                    <i class="icon icon-back"></i>
+                    <span class="if-not-md">Retour</span>
+                </a>
+            </div>
+            <div class="title">Mes Tâches</div>
+        </div>
+    </div>
+
+    <!-- Contenu de la page -->
+    <div class="page-content">
+        
+        <!-- 1. La liste où s'injectent les tâches -->
+        <div class="list">
+            <ul class="liste-taches"></ul>
+        </div>
+
+        <!-- 2. Zone d'écriture -->
+        <div class="list inset">
+            <ul>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                        <div class="item-input-wrap">
+                            <input type="text" id="champ-tache" placeholder="Nouvelle tâche…">
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 3. Bouton Ajouter -->
+        <div class="block">
+            <a href="#" class="button button-fill" id="btn-ajouter">Ajouter</a>
+        </div>
+
+        <!-- 4. Compteur et Filtres -->
+        <div class="block block-strong text-align-center">
+            <p class="compteur text-color-gray" style="font-weight: bold; margin-bottom: 15px;"></p>
+            <div class="segmented segmented-raised">
+                <a href="#" class="button filtre-btn button-active" data-filters="toutes">Toutes</a>
+                <a href="#" class="button filtre-btn" data-filters="afaire">À faire</a>
+                <a href="#" class="button filtre-btn" data-filters="faites">Faites</a>
+            </div>
+        </div>
+
+    </div> <!-- Fin de page-content -->
+</div> <!-- Fin de la page -->
