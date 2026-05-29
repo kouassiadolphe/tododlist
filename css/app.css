@@ -1,6 +1,4 @@
-/* Style personnalisé */
-
-/* Tâche barrée quand terminée */
+/* Style pour les tâches terminées */
 .tache-faite {
   text-decoration: line-through;
   color: #8e8e93;
@@ -37,14 +35,4 @@
 :root {
   --f7-theme-color: #2de80c;
   --f7-theme-color-rgb: 45, 232, 12;
-}
-
-/* Animation au clic */
-.item-content {
-  transition: background-color 0.2s ease;
-  cursor: pointer;
-}
-
-.item-content:active {
-  background-color: rgba(0, 0, 0, 0.05);
 }

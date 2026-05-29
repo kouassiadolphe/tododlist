@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Accueil - My ToDo</title>
+  <title>Accueil - Ma ToDo</title>
 </head>
 <body>
   <div class="page">
@@ -20,50 +20,68 @@
       </div>
     </div>
     
-    <!-- Page Content -->
     <div class="page-content">
-      <!-- Formulaire d'ajout -->
+      <!-- Zone d'ajout (comme dans l'image) -->
       <div class="block">
         <div class="list inset">
           <ul>
             <li class="item-content item-input">
               <div class="item-inner">
                 <div class="item-input-wrap">
-                  <input type="text" id="champ-tache" placeholder="Nouvelle tâche...">
+                  <input type="text" id="nouvelleTache" placeholder="Nouvelle tâche...">
                 </div>
               </div>
             </li>
           </ul>
         </div>
-        <a href="#" class="button button-fill button-large" id="btn-ajouter">
+        <a href="#" class="button button-fill button-large" id="btnAjouter">
           Ajouter
         </a>
       </div>
       
-      <!-- Modules Framework7 -->
-      <div class="block-title">MODULES</div>
-      <div class="list list-simple">
+      <!-- Liste des modules (comme dans l'image) -->
+      <div class="list">
         <ul>
           <li class="item-content">
-            <div class="item-media"><i class="f7-icons">book</i></div>
+            <div class="item-media">
+              <label class="checkbox">
+                <input type="checkbox" class="module-checkbox" data-module="intro">
+                <i class="icon-checkbox"></i>
+              </label>
+            </div>
             <div class="item-inner">
               <div class="item-title">Module F7 - Introduction</div>
             </div>
           </li>
           <li class="item-content">
-            <div class="item-media"><i class="f7-icons">book</i></div>
+            <div class="item-media">
+              <label class="checkbox">
+                <input type="checkbox" class="module-checkbox" data-module="session1">
+                <i class="icon-checkbox"></i>
+              </label>
+            </div>
             <div class="item-inner">
               <div class="item-title">Module F7 - Session 1</div>
             </div>
           </li>
           <li class="item-content">
-            <div class="item-media"><i class="f7-icons">book</i></div>
+            <div class="item-media">
+              <label class="checkbox">
+                <input type="checkbox" class="module-checkbox" data-module="session2">
+                <i class="icon-checkbox"></i>
+              </label>
+            </div>
             <div class="item-inner">
               <div class="item-title">Module F7 - Session 2</div>
             </div>
           </li>
           <li class="item-content">
-            <div class="item-media"><i class="f7-icons">book</i></div>
+            <div class="item-media">
+              <label class="checkbox">
+                <input type="checkbox" class="module-checkbox" data-module="session3">
+                <i class="icon-checkbox"></i>
+              </label>
+            </div>
             <div class="item-inner">
               <div class="item-title">Module F7 - Session 3</div>
             </div>
@@ -74,86 +92,179 @@
   </div>
 
   <script>
-    // Attendre que le DOM soit chargé
+    // Attendre le chargement complet
     document.addEventListener('DOMContentLoaded', function() {
       var $$ = Dom7;
       var app = window.app;
       
       if (!$$ || !app) {
-        console.log('Attente du chargement...');
+        console.error('Framework7 non chargé');
         return;
       }
       
-      var CLE_STOCKAGE = 'ma-todo-taches';
+      // ========== SESSION 2 & 3 : Fonctionnalités complètes ==========
       
-      // Charger les tâches
-      function chargerTaches() {
+      var CLE_STOCKAGE = 'ma-todo-modules';
+      var modules = [];
+      
+      // Charger depuis localStorage
+      function chargerModules() {
         var data = localStorage.getItem(CLE_STOCKAGE);
         if (data) {
-          return JSON.parse(data);
+          modules = JSON.parse(data);
+        } else {
+          // Modules par défaut
+          modules = [
+            { id: 1, titre: "Module F7 - Introduction", fait: false },
+            { id: 2, titre: "Module F7 - Session 1", fait: false },
+            { id: 3, titre: "Module F7 - Session 2", fait: false },
+            { id: 4, titre: "Module F7 - Session 3", fait: false }
+          ];
+          sauvegarder();
         }
-        return [];
+        
+        // Mettre à jour les checkboxes
+        mettreAJourCheckboxes();
       }
       
-      // Sauvegarder
-      function sauvegarder(taches) {
-        localStorage.setItem(CLE_STOCKAGE, JSON.stringify(taches));
+      // Sauvegarder dans localStorage
+      function sauvegarder() {
+        localStorage.setItem(CLE_STOCKAGE, JSON.stringify(modules));
       }
       
-      // Ajouter une tâche
-      function ajouterTache(texte) {
-        if (texte.trim() === '') {
-          if (app.toast) {
-            app.toast.create({ text: 'Veuillez saisir une tâche', closeTimeout: 1500 }).open();
+      // Mettre à jour l'état des checkboxes dans le DOM
+      function mettreAJourCheckboxes() {
+        var checkboxes = document.querySelectorAll('.module-checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+          var cb = checkboxes[i];
+          var moduleId = cb.getAttribute('data-module');
+          // Trouver le module correspondant
+          for (var j = 0; j < modules.length; j++) {
+            if (modules[j].id === j+1) {
+              cb.checked = modules[j].fait;
+              // Appliquer la classe barrée au texte
+              var itemTitle = cb.closest('.item-content').querySelector('.item-title');
+              if (modules[j].fait) {
+                itemTitle.classList.add('tache-faite');
+              } else {
+                itemTitle.classList.remove('tache-faite');
+              }
+              break;
+            }
           }
+        }
+      }
+      
+      // Ajouter un module (tâche)
+      function ajouterModule(titre) {
+        if (titre.trim() === '') {
+          app.toast.create({ text: 'Veuillez saisir un module', closeTimeout: 1500 }).open();
           return;
         }
         
-        var taches = chargerTaches();
-        var maxId = 0;
-        for (var i = 0; i < taches.length; i++) {
-          if (taches[i].id > maxId) maxId = taches[i].id;
-        }
-        
-        taches.push({
-          id: maxId + 1,
-          texte: texte.trim(),
+        var nouvelId = modules.length + 1;
+        modules.push({
+          id: nouvelId,
+          titre: titre.trim(),
           fait: false
         });
         
-        sauvegarder(taches);
+        sauvegarder();
         
-        if (app.toast) {
-          app.toast.create({ text: '✅ Tâche ajoutée !', closeTimeout: 1200 }).open();
-        }
+        // Ajouter la nouvelle tâche dans la liste DOM
+        var liste = document.querySelector('.list ul');
+        var nouvelleLigne = document.createElement('li');
+        nouvelleLigne.className = 'item-content';
+        nouvelleLigne.innerHTML = `
+          <div class="item-media">
+            <label class="checkbox">
+              <input type="checkbox" class="module-checkbox" data-module="module${nouvelId}">
+              <i class="icon-checkbox"></i>
+            </label>
+          </div>
+          <div class="item-inner">
+            <div class="item-title">${escapeHtml(titre.trim())}</div>
+          </div>
+        `;
+        liste.appendChild(nouvelleLigne);
         
-        // Rediriger vers la page des tâches
-        if (app.views && app.views.main) {
-          app.views.main.router.navigate('/taches/');
-        }
-      }
-      
-      // Événement ajout
-      var btnAjouter = $$('#btn-ajouter');
-      var champTache = $$('#champ-tache');
-      
-      if (btnAjouter.length) {
-        btnAjouter.on('click', function(e) {
-          e.preventDefault();
-          ajouterTache(champTache.val());
-          champTache.val('');
+        // Réattacher l'événement au nouveau checkbox
+        var nouveauCheckbox = nouvelleLigne.querySelector('.module-checkbox');
+        nouveauCheckbox.addEventListener('change', function(e) {
+          basculerModule(this);
         });
+        
+        app.toast.create({ text: '✅ Module ajouté !', closeTimeout: 1200 }).open();
       }
       
-      if (champTache.length) {
-        champTache.on('keypress', function(e) {
-          if (e.keyCode === 13) {
-            e.preventDefault();
-            ajouterTache(champTache.val());
-            champTache.val('');
+      // Basculer l'état d'un module
+      function basculerModule(checkbox) {
+        var moduleId = checkbox.getAttribute('data-module');
+        var index = parseInt(moduleId.replace('module', '')) - 1;
+        
+        if (index >= 0 && index < modules.length) {
+          modules[index].fait = checkbox.checked;
+          sauvegarder();
+          
+          // Barrer ou débarrer le texte
+          var itemTitle = checkbox.closest('.item-content').querySelector('.item-title');
+          if (checkbox.checked) {
+            itemTitle.classList.add('tache-faite');
+          } else {
+            itemTitle.classList.remove('tache-faite');
           }
+        }
+      }
+      
+      // Échapper le HTML
+      function escapeHtml(texte) {
+        return texte.replace(/[&<>]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          return m;
         });
       }
+      
+      // Initialiser les événements
+      function initialiserEvenements() {
+        // Bouton Ajouter
+        var btnAjouter = document.getElementById('btnAjouter');
+        var champTache = document.getElementById('nouvelleTache');
+        
+        if (btnAjouter) {
+          btnAjouter.addEventListener('click', function(e) {
+            e.preventDefault();
+            ajouterModule(champTache.value);
+            champTache.value = '';
+          });
+        }
+        
+        // Touche Entrée
+        if (champTache) {
+          champTache.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              ajouterModule(champTache.value);
+              champTache.value = '';
+            }
+          });
+        }
+        
+        // Checkboxes existants
+        var checkboxes = document.querySelectorAll('.module-checkbox');
+        for (var i = 0; i < checkboxes.length; i++) {
+          checkboxes[i].addEventListener('change', function(e) {
+            basculerModule(this);
+          });
+        }
+      }
+      
+      // ========== INITIALISATION ==========
+      chargerModules();
+      initialiserEvenements();
+      
+      console.log('✅ Application chargée - Toutes les fonctionnalités sont actives');
     });
   </script>
 </body>

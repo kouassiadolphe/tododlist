@@ -1,7 +1,6 @@
-// Initialisation de Framework7
 var app = new Framework7({
   el: '#app',
-  name: 'MyTodoApp',
+  name: 'MaToDo',
   theme: 'auto',
   routes: routes,
   view: {
@@ -10,12 +9,10 @@ var app = new Framework7({
   }
 });
 
-// Exposer l'instance globalement
 window.app = app;
 
-// Créer la vue principale
 var mainView = app.views.create('.view-main', {
   url: '/'
 });
 
-console.log('✅ Application Framework7 démarrée');
+console.log('✅ Framework7 démarré');

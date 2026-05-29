@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Mes Tâches - My ToDo</title>
+  <title>Mes Tâches - Ma ToDo</title>
 </head>
 <body>
   <div class="page">
@@ -28,18 +28,18 @@
             <li class="item-content item-input">
               <div class="item-inner">
                 <div class="item-input-wrap">
-                  <input type="text" id="champ-tache" placeholder="Nouvelle tâche...">
+                  <input type="text" id="champTache" placeholder="Nouvelle tâche...">
                 </div>
               </div>
             </li>
           </ul>
         </div>
-        <a href="#" class="button button-fill button-large" id="btn-ajouter">
+        <a href="#" class="button button-fill button-large" id="btnAjouter">
           ➕ Ajouter
         </a>
       </div>
       
-      <!-- Filtres -->
+      <!-- Filtres (Session 3) -->
       <div class="block">
         <div class="row">
           <div class="col-33">
@@ -60,20 +60,19 @@
         </div>
       </div>
       
-      <!-- Compteur -->
+      <!-- Compteur (Session 3) -->
       <div class="block text-align-center">
         <div class="compteur" id="compteur">0 tâche(s) restante(s)</div>
       </div>
       
       <!-- Liste des tâches -->
       <div class="list">
-        <ul class="liste-taches"></ul>
+        <ul class="listeTaches"></ul>
       </div>
     </div>
   </div>
 
   <script>
-    // Attendre que le DOM soit chargé
     document.addEventListener('DOMContentLoaded', function() {
       var $$ = Dom7;
       var app = window.app;
@@ -83,12 +82,11 @@
         return;
       }
       
-      // ========== DONNÉES ==========
+      // ========== SESSION 3 : TOUTES LES FONCTIONNALITÉS ==========
+      
       var CLE_STOCKAGE = 'ma-todo-taches';
       var filtreActif = 'toutes';
       var taches = [];
-      
-      // ========== FONCTIONS ==========
       
       // Charger depuis localStorage
       function chargerTaches() {
@@ -106,14 +104,12 @@
         }
       }
       
-      // Sauvegarder dans localStorage
+      // Sauvegarder
       function sauvegarder() {
         localStorage.setItem(CLE_STOCKAGE, JSON.stringify(taches));
-        // Mettre à jour l'accueil si besoin
-        window.dispatchEvent(new Event('storage'));
       }
       
-      // Échapper le HTML
+      // Échapper HTML
       function escapeHtml(texte) {
         if (!texte) return '';
         return texte.replace(/[&<>]/g, function(m) {
@@ -124,7 +120,7 @@
         });
       }
       
-      // Générer une ligne de tâche
+      // Générer ligne HTML
       function ligneTache(t) {
         var classeFait = t.fait ? 'tache-faite' : '';
         var checked = t.fait ? 'checked' : '';
@@ -145,7 +141,7 @@
         '</li>';
       }
       
-      // Filtrer les tâches visibles
+      // Filtrer les tâches
       function tachesVisibles() {
         if (filtreActif === 'afaire') {
           return taches.filter(function(t) { return !t.fait; });
@@ -153,19 +149,19 @@
         if (filtreActif === 'faites') {
           return taches.filter(function(t) { return t.fait; });
         }
-        return taches.slice(); // Retourne une copie
+        return taches.slice();
       }
       
       // Afficher les tâches
       function afficher() {
         var tachesFiltrees = tachesVisibles();
-        var listeHtml = '';
+        var html = '';
         for (var i = 0; i < tachesFiltrees.length; i++) {
-          listeHtml += ligneTache(tachesFiltrees[i]);
+          html += ligneTache(tachesFiltrees[i]);
         }
-        $$('.liste-taches').html(listeHtml);
+        $$('.listeTaches').html(html);
         
-        // Mettre à jour le compteur
+        // Mettre à jour compteur
         var restantes = 0;
         for (var i = 0; i < taches.length; i++) {
           if (!taches[i].fait) restantes++;
@@ -173,7 +169,7 @@
         $$('#compteur').text(restantes + ' tâche(s) restante(s)');
       }
       
-      // Ajouter une tâche
+      // Ajouter tâche
       function ajouterTache(texte) {
         if (texte.trim() === '') {
           app.toast.create({ text: '⚠️ Veuillez saisir une tâche', closeTimeout: 1500 }).open();
@@ -197,22 +193,22 @@
         app.toast.create({ text: '✅ Tâche ajoutée !', closeTimeout: 1200 }).open();
       }
       
-      // Supprimer une tâche
+      // Supprimer tâche
       function supprimerTache(id) {
-        var nouveauTaches = [];
+        var nouvellesTaches = [];
         for (var i = 0; i < taches.length; i++) {
           if (taches[i].id !== parseInt(id, 10)) {
-            nouveauTaches.push(taches[i]);
+            nouvellesTaches.push(taches[i]);
           }
         }
-        taches = nouveauTaches;
+        taches = nouvellesTaches;
         sauvegarder();
         afficher();
         
         app.toast.create({ text: '🗑️ Tâche supprimée', closeTimeout: 1200 }).open();
       }
       
-      // Basculer l'état d'une tâche
+      // Basculer état
       function basculerTache(id) {
         for (var i = 0; i < taches.length; i++) {
           if (taches[i].id === parseInt(id, 10)) {
@@ -228,12 +224,12 @@
       chargerTaches();
       afficher();
       
-      // ========== ÉVÉNEMENTS (Délégation) ==========
+      // ========== ÉVÉNEMENTS ==========
       
       // Ajouter
-      $$(document).on('click', '#btn-ajouter', function(e) {
+      $$(document).on('click', '#btnAjouter', function(e) {
         e.preventDefault();
-        var champ = $$('#champ-tache');
+        var champ = $$('#champTache');
         ajouterTache(champ.val());
         champ.val('');
       });
@@ -245,8 +241,8 @@
         supprimerTache(id);
       });
       
-      // Cocher/Décocher
-      $$(document).on('change', '.task-checkbox', function(e) {
+      // Checkbox
+      $$(document).on('change', '.task-checkbox', function() {
         var id = $$(this).parents('.item-content').attr('data-id');
         basculerTache(id);
       });
@@ -261,14 +257,14 @@
       });
       
       // Touche Entrée
-      $$('#champ-tache').on('keypress', function(e) {
+      $$('#champTache').on('keypress', function(e) {
         if (e.keyCode === 13) {
           e.preventDefault();
-          $$('#btn-ajouter').trigger('click');
+          $$('#btnAjouter').trigger('click');
         }
       });
       
-      console.log('✅ Page Tâches chargée - Toutes les fonctionnalités sont actives');
+      console.log('✅ Page Tâches chargée');
     });
   </script>
 </body>
