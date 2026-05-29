@@ -1,5 +1,23 @@
-// Initialisation du sélecteur Framework7 ($$)
+// 1. Initialisation du sélecteur Dom7
 var $$ = Dom7;
+
+// 2. INITIALISATION DE FRAMEWORK7 (indispensable pour lier les routes et éviter l'écran blanc)
+var app = new Framework7({
+  el: '#app', // L'élément principal dans ton HTML
+  name: 'Ma ToDo',
+  id: 'com.todolist.app',
+  // On passe le tableau des routes défini dans routes.js
+  routes: routes, 
+});
+
+// Création de la vue principale
+var mainView = app.views.create('.view-main');
+
+// --- VARIABLES GLOBALES ---
+let taches = []; 
+let filtreActuel = 'toutes';
+
+// ... (Tout le reste de ton code app.js que l'on a écrit au message précédent reste identique) ..
 
 // --- VARIABLES GLOBALES ---
 let taches = []; 
