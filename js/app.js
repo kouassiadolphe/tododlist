@@ -1,93 +1,160 @@
+// Initialisation du sélecteur Framework7 ($$)
 var $$ = Dom7;
-var app = new Framework7({ el: '#app', name: 'MaToDo', theme: 'auto', routes: routes });
 
-var CLE_STORAGE = 'ma-todo-taches';
-var filtreActif = 'toutes'; 
+// --- VARIABLES GLOBALES ---
+let taches = []; 
+let filtreActuel = 'toutes'; // Stocke le filtre actif : 'toutes', 'a-faire' ou 'faites'
 
-function chargerTaches() {
-    var data = localStorage.getItem(CLE_STORAGE);
-    return data ? JSON.parse(data) : [
-        { id: 1, texte: "Module F7 - Introduction", fait: false },
-        { id: 2, texte: "Module F7 - Session 1", fait: true },
-        { id: 3, texte: "Module F7 - Session 2", fait: true }
-    ];
+// --- LOCALSTORAGE : STOCKAGE DU TABLEAU ---
+// Enregistrer les tâches dans le navigateur
+function sauvegarder() {
+    localStorage.setItem('sauvegarde_taches', JSON.stringify(taches));
 }
 
-let taches = chargerTaches();
-function sauvegarder() { localStorage.setItem(CLE_STORAGE, JSON.stringify(taches)); }
-
-function ligneTache(t) {
-    return `
-    <li class="item-content" data-id="${t.id}">
-        <div class="item-media"> 
-            <label class="checkbox"><input type="checkbox" ${t.fait ? "checked" : ""} /><i class="icon icon-checkbox"></i></label>
-        </div>
-        <div class="item-inner">
-            <div class="item-title ${t.fait ? 'tache-faite' : ''}">${t.texte}</div>
-            <div class="item-after"><a href="#" class="btn-suppr"><i class="icon f7-icons">trash</i></a></div>
-        </div>
-    </li>`;
+// Charger les tâches au démarrage
+function charger() {
+    var donnees = localStorage.getItem('sauvegarde_taches');
+    if (donnees) {
+        taches = JSON.parse(donnees);
+    } else {
+        taches = []; 
+    }
 }
 
-function tachesVisibles() {
-    if (filtreActif === 'afaire') return taches.filter(function (t) { return !t.fait; });
-    if (filtreActif === 'faites') return taches.filter(function (t) { return t.fait; });
-    return taches;
+// --- COMPTEUR : EN COURS DE RÉALISATION ---
+function mettreAJourCompteur() {
+    // On compte uniquement les tâches où "fait" est égal à false
+    var enCours = taches.filter(function(t) {
+        return !t.fait;
+    }).length;
+
+    // Mise à jour de la balise HTML #compteur
+    $$('#compteur').text(enCours);
 }
 
-// CORRECTION ICI : On cible spécifiquement la page active pour l'affichage
-function afficher(pageContainer) {
-    var $page = $$(pageContainer || '.page-current');
-    $page.find('.liste-taches').html(tachesVisibles().map(ligneTache).join(""));
-    var restantes = taches.filter(function (t) { return !t.fait; }).length;
-    $page.find('.compteur').text(restantes + ' tâche(s) restante(s)');
+// --- AFFICHAGE DE LA LISTE DYNAMIQUE ---
+function afficher() {
+    var elListe = $$('.liste-taches');
+    if (elListe.length === 0) return; // Sécurité si la page n'est pas prête
+
+    // 1. Filtrer les tâches selon le bouton sélectionné
+    var tachesFiltrees = taches.filter(function(t) {
+        if (filtreActuel === 'a-faire') return !t.fait; // Uniquement non cochées
+        if (filtreActuel === 'faites') return t.fait;   // Uniquement cochées
+        return true; // 'toutes'
+    });
+
+    // 2. Si aucune tâche ne correspond au filtre actif
+    if (tachesFiltrees.length === 0) {
+        elListe.html('<li class="item-content"><div class="item-inner">Aucune tâche à afficher</div></li>');
+        mettreAJourCompteur();
+        return;
+    }
+
+    // 3. Génération du code HTML pour chaque tâche filtrée
+    var html = '';
+    tachesFiltrees.forEach(function(t) {
+        var coche = t.fait ? 'checked' : '';
+        // Si la tâche est faite, on applique un style barré et transparent
+        var styleTexte = t.fait ? 'text-decoration: line-through; opacity: 0.5;' : '';
+        
+        html += `
+            <li class="item-content" data-id="${t.id}">
+                <div class="item-inner">
+                    <div class="item-title">
+                        <label class="checkbox">
+                            <input type="checkbox" ${coche}>
+                            <i class="icon-checkbox"></i>
+                        </label>
+                        <span style="${styleTexte}">${t.texte}</span>
+                    </div>
+                    <div class="item-after">
+                        <button class="button button-raised button-fill color-red btn-supprimer">Supprimer</button>
+                    </div>
+                </div>
+            </li>
+        `;
+    });
+
+    // Injecter le HTML dans la page
+    elListe.html(html);
+
+    // Mettre à jour le compteur global
+    mettreAJourCompteur();
 }
 
-// Au chargement initial de la page tâche
-$$(document).on('page:init', '.page[data-name="tache"]', function (e, page) { 
-    afficher(page.el); 
-});
-
+// --- FONCTIONS ACTIONS : AJOUTER / SUPPRIMER / BASCULER ---
 // Ajouter une tâche
 function ajouterTache(texte) {
-    if (texte.trim() === '') return;
-    var nouvelId = taches.reduce(function (m, t) { return Math.max(m, t.id); }, 0) + 1;
-    taches.push({ id: nouvelId, texte: texte.trim(), fait: false });
+    if (!texte || texte.trim() === '') return;
+
+    taches.push({
+        id: Date.now(), // ID unique basé sur le temps
+        texte: texte.trim(),
+        fait: false
+    });
+
     sauvegarder();
     afficher();
-    app.toast.create({ text: 'Tâche ajoutée !', closeTimeout: 1200 }).open();
 }
-
-$$(document).on('click', '#btn-ajouter', function () {
-    var champ = $$('#champ-tache');
-    ajouterTache(champ.val());
-    champ.val('');
-});
 
 // Supprimer une tâche
 function supprimerTache(id) {
-    taches = taches.filter(function (t) { return t.id !== parseInt(id, 10); });
+    taches = taches.filter(function(t) {
+        return t.id !== parseInt(id);
+    });
+
     sauvegarder();
     afficher();
 }
 
-$$(document).on('click', '.btn-suppr', function (e) {
-    e.preventDefault();
+// Modifier le statut (coché/décoché)
+function basculerTache(id) {
+    taches = taches.map(function(t) {
+        if (t.id === parseInt(id)) {
+            t.fait = !t.fait;
+        }
+        return t;
+    });
+
+    sauvegarder();
+    afficher();
+}
+
+// --- ÉCOUTEURS D'ÉVÉNEMENTS (CLICS INTERFACES) ---
+
+// 1. Bouton "Ajouter la tâche"
+$$(document).on('click', '#btn-ajouter', function() {
+    var champ = $$('#champ-tache');
+    ajouterTache(champ.val());
+    champ.val(''); // On vide l'input
+});
+
+// 2. Bouton "Supprimer"
+$$(document).on('click', '.btn-supprimer', function() {
     var id = $$(this).parents('.item-content').attr('data-id');
     supprimerTache(id);
 });
 
-// Cocher / Décocher
-$$(document).on('change', '.liste-taches input[type="checkbox"]', function () {
+// 3. Changement d'état de la Checkbox (Fait / À faire)
+$$(document).on('change', '.liste-taches input[type="checkbox"]', function() {
     var id = $$(this).parents('.item-content').attr('data-id');
-    var t = taches.find(function (x) { return x.id === parseInt(id, 10); });
-    if (t) { t.fait = !t.fait; sauvegarder(); afficher(); }
+    basculerTache(id);
 });
 
-// Écouteur des boutons de filtre
-$$(document).on('click', '.filtre-btn', function () {
-    $$('.filtre-btn').removeClass('button-active');
+// 4. Clic sur les boutons de FILTRES (Toutes / À faire / Faites)
+$$(document).on('click', '.btn-filtre', function() {
+    // Gérer l'état visuel du bouton actif
+    $$('.btn-filtre').removeClass('button-active');
     $$(this).addClass('button-active');
-    filtreActif = $$(this).attr('data-filtre');
+
+    // Mettre à jour le filtre logique et rafraîchir la liste
+    filtreActuel = $$(this).attr('data-filtre');
+    afficher();
+});
+
+// --- CHARGEMENT AU DÉMARRAGE ---
+document.addEventListener("DOMContentLoaded", function() {
+    charger();
     afficher();
 });
